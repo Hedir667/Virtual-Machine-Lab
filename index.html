@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="az">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtuallaşdırma Laboratoriyası</title>
+<style>
+:root{--bg:#f4f6f3;--card:#fff;--ink:#14202b;--mute:#5d6b76;--line:#d5dcd3;--acc:#1f6f9a;--ok:#2e8b3d;--bad:#d1453b;--warn:#c98a00;--hd:#14202b;--hdi:#b7e34a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101a23;--card:#1a2a38;--ink:#eef2ef;--mute:#9fb3c3;--line:#2e4356;--acc:#5db6e8;--ok:#6fd37c;--bad:#ff7b72;--warn:#f4c542}}
+:root[data-theme="dark"]{--bg:#101a23;--card:#1a2a38;--ink:#eef2ef;--mute:#9fb3c3;--line:#2e4356;--acc:#5db6e8;--ok:#6fd37c;--bad:#ff7b72;--warn:#f4c542}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+header{background:var(--hd);color:#fff;border-radius:16px;padding:22px 24px;margin-bottom:18px}
+header h1{margin:0 0 6px;font-size:26px;color:var(--hdi)}
+header p{margin:0;color:#c9d6df;font-size:15px}
+h2{font-size:20px;margin:26px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.tasks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.task{display:flex;gap:12px;align-items:flex-start}
+.dot{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.task.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.task b{display:block}
+.task span{color:var(--mute);font-size:14px}
+.bar{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:12px 0 0}
+.bar i{display:block;height:100%;background:var(--ok);width:0;transition:width .3s}
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+select,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:8px 14px;font-weight:700}
+.primary{background:#b7e34a;color:#14202b}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.sp{flex:1}
+.scroll{overflow-x:auto;border-radius:14px;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:900px;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mute);font-size:13px}
+tr:last-child td{border-bottom:0}
+.st{font-weight:700}
+.Running{color:var(--ok)}.Stopped{color:var(--mute)}.Error{color:var(--bad)}
+.acts button{padding:6px 9px;font-size:12px;margin-right:4px;color:#14202b}
+.b-start{background:#b7e34a}.b-stop{background:#f4c542}.b-re{background:#5db6e8}.b-del{background:#ff7b72}
+.acts button:disabled{opacity:.28;cursor:not-allowed}
+.hosts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.hosts h3{margin:0 0 4px;font-size:18px}
+.hosts small{color:var(--mute)}
+.m{margin-top:10px;font-size:14px}
+.m .t{height:8px;background:var(--line);border-radius:5px;overflow:hidden;margin-top:4px}
+.m .t i{display:block;height:100%}
+.tag{float:right;font-weight:700;font-size:13px}
+.q{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.q label{display:block;font-weight:700;margin-bottom:6px}
+.q .r{font-size:14px;margin-top:6px;min-height:20px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.modal.on{display:flex}
+.box{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:420px}
+.box h3{margin:0 0 12px}
+.box .f{margin-bottom:10px}.box .f label{display:block;font-size:13px;color:var(--mute);margin-bottom:4px}.box input{width:100%}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#14202b;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s;max-width:90%;z-index:30}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Virtuallaşdırma Laboratoriyası</h1>
+<p>AutoGalo şirkətinin virtuallaşdırma panelinin simulyasiyası. Qeydiyyat tələb olunmur, hər şey brauzerdə işləyir. Praktik tapşırıqları burada sınaya bilərsən.</p>
+</header>
+
+<div class="card">
+<b>Tapşırıqlar</b>
+<div class="tasks" style="margin-top:12px">
+<div class="task" id="t1"><div class="dot">1</div><div><b>Xətanı düzəlt</b><span>Mail-SERVER maşını Error vəziyyətindədir. Onu yenidən işə sal (mavi düymə).</span></div></div>
+<div class="task" id="t2"><div class="dot">2</div><div><b>Yeni VM yarat</b><span>Marketing-VM: 4 nüvə CPU, 8 GB RAM, 100 GB disk.</span></div></div>
+<div class="task" id="t3"><div class="dot">3</div><div><b>Host-ları təhlil et</b><span>Aşağıdakı 4 suala düzgün cavab ver.</span></div></div>
+</div>
+<div class="bar"><i id="prog"></i></div>
+</div>
+
+<h2>Lab Machines (virtual maşınlar)</h2>
+<div class="tools">
+<select id="flt"><option value="">Bütün statuslar</option><option>Running</option><option>Stopped</option><option>Error</option></select>
+<input id="srch" placeholder="Ad və ya IP üzrə axtar">
+<span class="sp"></span>
+<button class="ghost" id="reset">Sıfırla</button>
+<button class="primary" id="add">+ Create VM</button>
+</div>
+<div class="scroll"><table><thead><tr><th>Ad</th><th>Status</th><th>Əməliyyatlar</th><th>CPU</th><th>Yaddaş</th><th>Disk</th><th>IP ünvanı</th><th>İşləmə müddəti</th><th>Host</th></tr></thead><tbody id="tb"></tbody></table></div>
+
+<h2>Hosts (fiziki serverlər)</h2>
+<div class="hosts" id="hosts"></div>
+
+<h2>Tapşırıq 3: suallar</h2>
+<div class="card">
+<div class="q">
+<div><label>Ən uzun müddətdir işləyən lab maşını?</label><select id="a1"></select><div class="r" id="r1"></div></div>
+<div><label>Ən çox yaddaş istifadə edən lab maşını?</label><select id="a2"></select><div class="r" id="r2"></div></div>
+<div><label>Mail-SERVER düzəldildikdən sonra neçə VM Running vəziyyətindədir? (Marketing-VM daxil deyil)</label><input id="a3" type="number" min="0" placeholder="Rəqəm yaz"><div class="r" id="r3"></div></div>
+<div><label>Hansı host-da hələ yeni VM üçün yer var?</label><select id="a4"></select><div class="r" id="r4"></div></div>
+</div>
+<div style="margin-top:14px"><button class="primary" id="chk">Cavabları yoxla</button></div>
+</div>
+</div>
+
+<div class="modal" id="md"><div class="box">
+<h3>Create Virtual Machine</h3>
+<div class="f"><label>Ad</label><input id="n"></div>
+<div class="f"><label>CPU nüvələri</label><input id="c" type="number" min="1"></div>
+<div class="f"><label>Yaddaş (GB)</label><input id="m" type="number" min="1"></div>
+<div class="f"><label>Disk ölçüsü (GB)</label><input id="d" type="number" min="1"></div>
+<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px"><button class="ghost" id="cn">Cancel</button><button class="primary" id="ok">Create VM</button></div>
+</div></div>
+<div class="toast" id="ts"></div>
+
+<script>
+var BASE=[["WebServer-PROD","Running",4,8,100,"192.168.1.10","2 gün, 5 saat","HV-PROD-01"],["AppServer-STAGE","Stopped",2,4,50,"192.168.1.12","N/A","HV-PROD-01"],["DB-Cluster-01","Running",8,32,500,"192.168.1.11","1 həftə, 3 gün","HV-PROD-02"],["Backup-SERVER","Running",2,16,1000,"192.168.1.13","4 gün, 12 saat","HV-PROD-02"],["Dev-Environment","Stopped",4,16,200,"192.168.1.14","N/A","HV-PROD-02"],["Monitoring-SYS","Running",2,8,100,"192.168.1.15","3 həftə, 2 gün","HV-PROD-02"],["Mail-SERVER","Error",2,8,250,"192.168.1.16","3 saat","HV-PROD-02"],["FileServer-01","Running",4,16,500,"192.168.1.17","2 həftə, 6 gün","HV-PROD-02"],["File-Server-2","Running",4,16,500,"192.168.1.18","1 həftə, 4 gün","HV-PROD-02"],["File-Server-3","Running",4,16,500,"192.168.1.19","6 gün, 1 saat","HV-PROD-02"]];
+var HOSTS=[["HV-PROD-01","192.168.1.100",true,45,68,72,3],["HV-PROD-02","192.168.1.101",true,98,90,95,8],["HV-BACKUP-01","192.168.1.102",false,0,0,30,0]];
+var NAMES=BASE.map(function(r){return r[0]});
+var vms,done,confirmDel,created,answered;
+function $(i){return document.getElementById(i)}
+function fresh(){vms=BASE.map(function(r){return{n:r[0],s:r[1],c:r[2],m:r[3],d:r[4],ip:r[5],u:r[6],h:r[7]}});done={t1:false,t2:false,t3:false};confirmDel=null;created=0;answered={};
+["r1","r2","r3","r4"].forEach(function(i){$(i).textContent=""});$("a3").value="";$("a1").selectedIndex=0;$("a2").selectedIndex=0;$("a4").selectedIndex=0;draw()}
+function toast(t){var e=$("ts");e.textContent=t;e.className="toast on";clearTimeout(toast.k);toast.k=setTimeout(function(){e.className="toast"},2600)}
+function btn(cls,txt,on,i,act){return '<button class="'+cls+'" data-i="'+i+'" data-a="'+act+'"'+(on?'':' disabled')+'>'+txt+'</button>'}
+function draw(){
+var f=$("flt").value,q=$("srch").value.toLowerCase(),h="";
+vms.forEach(function(v,i){
+if(f&&v.s!==f)return;if(q&&(v.n.toLowerCase().indexOf(q)<0&&v.ip.toLowerCase().indexOf(q)<0))return;
+h+='<tr><td>'+v.n+'</td><td class="st '+v.s+'">'+v.s+'</td><td class="acts">'+btn("b-start","Başlat",v.s==="Stopped",i,"start")+btn("b-stop","Dayandır",v.s==="Running",i,"stop")+btn("b-re","Restart",v.s!=="Stopped",i,"re")+btn("b-del",confirmDel===i?"Əminsən?":"Sil",true,i,"del")+'</td><td>'+v.c+' nüvə</td><td>'+v.m+' GB</td><td>'+v.d+' GB</td><td>'+v.ip+'</td><td>'+v.u+'</td><td>'+v.h+'</td></tr>'});
+$("tb").innerHTML=h||'<tr><td colspan="9">Nəticə tapılmadı</td></tr>';
+var hh="";HOSTS.forEach(function(x){var extra=vms.filter(function(v){return v.n==="Marketing-VM"&&v.h===x[0]}).length;
+function m(l,p){var c=p>=90?"var(--bad)":p>=70?"var(--warn)":"var(--ok)";return '<div class="m">'+l+': <b>'+p+'%</b><div class="t"><i style="width:'+p+'%;background:'+c+'"></i></div></div>'}
+hh+='<div class="card"><span class="tag" style="color:'+(x[2]?"var(--ok)":"var(--bad)")+'">'+(x[2]?"Connected":"Disconnected")+'</span><h3>'+x[0]+'</h3><small>'+x[1]+'</small>'+m("CPU",x[3])+m("Yaddaş",x[4])+m("Disk",x[5])+'<div class="m">VM sayı: <b>'+(x[6]+extra)+'</b></div></div>'});
+$("hosts").innerHTML=hh;
+var mail=vms.filter(function(v){return v.n==="Mail-SERVER"})[0];done.t1=!!mail&&mail.s==="Running";
+done.t2=vms.some(function(v){return v.n==="Marketing-VM"&&v.c===4&&v.m===8&&v.d===100});
+var n=0;["t1","t2","t3"].forEach(function(k){$(k).className="task"+(done[k]?" done":"");$(k).firstChild.textContent=done[k]?"OK":k.charAt(1);if(done[k])n++});
+$("prog").style.width=Math.round(n/3*100)+"%"}
+$("tb").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.disabled)return;var i=+b.dataset.i,a=b.dataset.a,v=vms[i];
+if(a!=="del")confirmDel=null;
+if(a==="start"){v.s="Running";v.u="0 dəq";toast(v.n+" işə salındı")}
+else if(a==="stop"){v.s="Stopped";v.u="N/A";toast(v.n+" dayandırıldı")}
+else if(a==="re"){v.s="Running";v.u="0 dəq";toast(v.n+" yenidən işə salındı")}
+else if(a==="del"){if(confirmDel===i){vms.splice(i,1);confirmDel=null;toast("VM silindi")}else{confirmDel=i;toast("Silməni təsdiqləmək üçün bir daha bas")}}
+draw()});
+$("flt").onchange=draw;$("srch").oninput=draw;$("reset").onclick=function(){fresh();toast("Laboratoriya sıfırlandı")};
+$("add").onclick=function(){$("n").value="";$("c").value="";$("m").value="";$("d").value="";$("md").className="modal on"};
+$("cn").onclick=function(){$("md").className="modal"};
+$("ok").onclick=function(){var n=$("n").value.trim(),c=+$("c").value,m=+$("m").value,d=+$("d").value;
+if(!n||c<1||m<1||d<1){toast("Bütün sahələri düzgün doldur");return}
+if(vms.some(function(v){return v.n===n})){toast("Bu adda VM artıq var");return}
+vms.unshift({n:n,s:"Stopped",c:c,m:m,d:d,ip:"DHCP",u:"N/A",h:"HV-PROD-01"});$("md").className="modal";
+toast(n==="Marketing-VM"&&(c!==4||m!==8||d!==100)?"VM yaradıldı, amma tapşırıq 4 nüvə, 8 GB RAM, 100 GB disk tələb edir":"VM yaradıldı");draw()};
+function opts(id,list){$(id).innerHTML='<option value="">Seç</option>'+list.map(function(x){return"<option>"+x+"</option>"}).join("")}
+opts("a1",NAMES);opts("a2",NAMES);opts("a4",HOSTS.map(function(x){return x[0]}));
+$("chk").onclick=function(){var ans=[["a1","Monitoring-SYS"],["a2","DB-Cluster-01"],["a3","8"],["a4","HV-PROD-01"]],ok=0;
+ans.forEach(function(p,k){var v=$(p[0]).value.trim(),r=$("r"+(k+1));if(!v){r.style.color="var(--mute)";r.textContent="Cavab seçilməyib";return}
+if(v===p[1]){ok++;r.style.color="var(--ok)";r.textContent="Düzgündür"}else{r.style.color="var(--bad)";r.textContent="Səhvdir, cədvələ yenidən bax"}});
+done.t3=ok===4;toast(ok+" / 4 düzgün cavab");draw()};
+fresh();
+</script>
+</body>
+</html>
